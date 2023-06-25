@@ -175,6 +175,12 @@ app.post('/checkout', async (req, res) => {
       // Update the order status in your database or perform any other necessary actions
       // ...
 
+      // Delete all products from the database
+      await Product.destroy({
+        where: {},
+        truncate: true,
+      });
+
       return res.status(200).json({ sessionId: session.id });
     } else {
       // Handle payment failure
@@ -185,6 +191,7 @@ app.post('/checkout', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 
