@@ -6,6 +6,7 @@ const sequelize = require('./database/database');
 const cors = require('cors');
 const Product=require('./models/product');
 const User=require('./models/user');
+const stripe= require('stripe')('sk_test_51NMoiWSIM6RPcgbriUaPlT49JYQIfnVWVxk1zaooqNBW1cLqKEe1wPjXivYfNemPWm9WO5EjEmfc1zWg9IJgrxN800kL7BH5Qo') 
 
 const app = Express();
 app.use(cors());
@@ -127,6 +128,64 @@ app.post('/login', (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     });
 });
+
+
+app.post('/checkout', async (req, res) => {
+  try {
+    const { paymentMethodId, items } = req.body;
+    const userIds = Array.from(new Set(items.map((item) => item.userId))); // Extract unique user IDs from the items array
+
+    // Fetch the users' information
+    const users = await User.findAll({
+      where: {
+        id: userIds,
+      },
+    });
+
+    if (users.length !== userIds.length) {
+      return res.status(404).json({ error: 'One or more users not found' });
+    }
+
+    // Calculate the total amount to charge
+    const totalAmount = items.reduce((total, item) => total + item.price * item.amount, 0);
+
+    // Create a payment intent with Stripe
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: items.map((item) => ({
+        price_data: {
+          currency: 'inr',
+          product_data: {
+            name: item.title,
+          },
+          unit_amount: item.price * 100, // Convert price to cents
+        },
+        quantity: item.amount,
+      })),
+      mode: 'payment',
+      success_url: 'http://localhost:3001/success',
+      cancel_url: 'http://localhost:3000/cancel',
+      metadata: {
+        userIds: userIds.join(','), // Store the user IDs as a comma-separated string in the metadata
+      },
+    });
+
+    // Handle successful payment
+    if (session.id) {
+      // Update the order status in your database or perform any other necessary actions
+      // ...
+
+      return res.status(200).json({ sessionId: session.id });
+    } else {
+      // Handle payment failure
+      return res.status(400).json({ error: 'Payment failed' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 

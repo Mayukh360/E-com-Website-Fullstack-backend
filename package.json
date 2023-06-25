@@ -6,7 +6,8 @@
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.4.1",
     "nodemon": "^2.0.22",
-    "sequelize": "^6.32.1"
+    "sequelize": "^6.32.1",
+    "stripe": "^12.10.0"
   },
   "name": "backend",
   "version": "1.0.0",
