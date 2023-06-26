@@ -1,6 +1,8 @@
 require('dotenv').config();
 const Express = require("express");
 const jwt = require("jsonwebtoken");
+const helmet=require('helmet')
+const compression=require('compression')
 
 const sequelize = require("./database/database");
 const ecomController = require("./controllers/ecomcontroller");
@@ -11,6 +13,8 @@ const User = require("./models/user");
 const app = Express();
 app.use(cors());
 app.use(Express.json());
+app.use(helmet());
+app.use(compression());
 
 app.use((req, res, next) => {
   const token = req.headers.authorization;
