@@ -39,16 +39,12 @@ const updateProduct = async (req, res) => {
     const product = await Product.findByPk(id);
 
     if (!product) {
-      return res.status(404).json({ success: false, error: 'Candy not found' });
+      return res.status(404).json({ success: false, error: 'Item not found' });
     }
 
-    if (product.quantity <= 0) {
-      return res
-        .status(404)
-        .json({ success: false, error: 'Candy quantity not enough' });
-    } else {
+  
       product.amount += 1;
-    }
+    
     await product.save();
 
     res.status(200).json({ success: true, data: product });
