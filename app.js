@@ -6,6 +6,7 @@ const compression=require('compression')
 
 const sequelize = require("./database/database");
 const ecomController = require("./controllers/ecomcontroller");
+const authcontroller=require('./controllers/authcontroller')
 const cors = require("cors");
 const Product = require("./models/product");
 const User = require("./models/user");
@@ -42,8 +43,8 @@ app.post("/getData", ecomController.createProduct);
 app.put("/addData/:id", ecomController.updateProduct);
 app.put("/removeData/:id", ecomController.decreaseProduct);
 app.delete("/getData/:id", ecomController.deleteProduct);
-app.post("/signup", ecomController.signup);
-app.post("/login", ecomController.login);
+app.post("/signup", authcontroller.signup);
+app.post("/login", authcontroller.login);
 app.post("/checkout", ecomController.checkout);
 
 User.hasMany(Product);
